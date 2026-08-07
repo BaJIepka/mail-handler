@@ -1,0 +1,21 @@
+{
+  "name": "teamlead-test-task",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "worker": "node dist/worker.js",
+    "exporter": "node dist/exporter.js",
+    "test": "node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "kysely": "^0.29.4",
+    "pg": "^8.13.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.7.2"
+  }
+}

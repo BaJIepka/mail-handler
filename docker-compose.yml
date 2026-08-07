@@ -21,12 +21,43 @@ services:
       retries: 10
       start_period: 15s
 
-  # Пример подключения своей службы:
-  #
-  # worker:
-  #   build: .
-  #   depends_on:
-  #     provider:
-  #       condition: service_healthy
-  #   environment:
-  #     PROVIDER_URL: http://provider:8080
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  worker:
+    build: .
+    command: ["node", "dist/worker.js"]
+    depends_on:
+      provider:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+      PROVIDER_URL: http://provider:8080
+
+  exporter:
+    build: .
+    command: ["node", "dist/exporter.js"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+    volumes:
+      - ./out:/app/out
+
+volumes:
+  db-data:
